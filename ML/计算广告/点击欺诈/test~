@@ -1,0 +1,29 @@
+**************************
+Number of Operations:	5120000
+Time of Operations:	56254291716"(ns)"
+OPS:	91015
+Time per Operations:	546239(ns)
+**************************
+
+
+1 -- with cal
+**************************
+Number of Operations:	5120000
+Time of Operations:	81603823374"(ns)"
+OPS:	62742
+**************************
+
+256
+**************************
+Number of Operations:	5120000
+Time of Operations:	67704561874"(ns)"
+OPS:	75622
+**************************
+
+
+1
+**************************
+Number of Operations:	5120000
+Time of Operations:	59373879991"(ns)"
+OPS:	86233
+**************************

@@ -1,0 +1,17 @@
+    RD会投入2-3个人持续把DSP/DMP平台搭建下去。
+    在DSP平台开发方面，之前主要不明确的地方在于Target Engine。根据调研，我们发现Target Engine可以分为如下几类：
+        网页级——在不同网页上投放相关的广告。之前为B5MAN开发的网页关键词抽取属于该类Targeting。
+        用户segment——给用户分组，包含年龄，地域，或者其他属性
+        Behavioral Targeting——根据用户的历史浏览行为对用户modeling
+        Contextual Targeting——根据用户当前的浏览行为modeling
+    从描述上，上述4个级别的Target Engine代表了精准度由低到高排列，此外还有ReTargeting需单独说明。Contextual Targeting其技术来源于context aware recommender engine，但由于DSP对于Latency的苛刻要求，在实际应用中很难推进，因此若想精准，必须降低QPS，必须缩小audience的potential targeting范围，以减少对性能的需求。
+    我们将尽快确立以上DSP核心组件的算法和开发进度。
+  
+  今日没有时间深入决定target engine的进一步细节。目前大多数提供的所谓contextual targeting，其实是针对search engine的query进行targeting，因此单独针对search engine的contextual targeting被独立出来。开发一个DSP需要如下工作，正如以前多次提及，这不是让几个人几天就可以做出的系统：
+        High concurrent RTB connector——目前已具备雏形
+        Target engine——用于offline computation for audience selection，算法仍未确定，需要平台：Hadoop/Spark + Fast distributed NoSQL
+        Bidding 算法——已初步有选择
+        RTB过程——检索（根据cookie从Target Engine获取用户集合），Bidding，过滤
+        除以上之外，还包含相关的compaign管理功能，不算这些管理功能，即便我们确定所有如上算法细节，大体需要3-6个月的工作才大概有雏形。
+
+

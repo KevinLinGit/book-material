@@ -1,0 +1,27 @@
+    跟青山探讨DSP的若干技术问题
+        DSP是高技术难度的开发项目，最大难点在于latency必须严格控制。例如，如果DSP只对接淘宝TANX，就需要提供40000qps的并发，如果对接更多adx，那么就需要更多硬件投入，单个request，其响应延迟不得超过30ms。因此，仅仅对接TANX，就需要至少10台RTB计算服务器。
+        由于latency要求苛刻，因此算法无法复杂，简单有效的算法几乎是必选。例如我们之前多次提到的点击率预测算法，业界采用最简单的logistic regression，最主要就是为迅速。
+        技术最难点之一在于Audience Target Engine，而根据计划，该功能本可能在DMP里实现。
+        另外，对存储引擎也有独立需求：数十亿的cookie属于普通规模，每条cookie都需要存储对应的Targeting信息，例如年龄，收入，标签，频率，等等。单条记录长度<1KB，那么存储引擎需要满足几十亿条记录任意查询的延迟<1ms，因为如果再长，将无法保证30ms的总延迟。在此之前的计划是利用HBase存储这些数据，但后者的point query延迟一般在20ms，因此无法满足要求。所以这个存储引擎是一个分布式，持久化的解决方案，也需要专门开发。
+        我们之前寻找到的RTBKit，作为一个RTB引擎，可以快速帮助熟悉DSP的核心架构，但该项目本身过于复杂，而且性能无法满足实际需求，需要大量优化或者重新实现。
+    了解M6D的DSP引擎解决方案。M6D是SIGKDD 2012 Best Industry Paper获得者，针对Target Engine的解决方案，其本质是一个大规模分布式classifier。
+    通过以上信息，我们不难理解为何在DSP已经盛行的今天（国内已有100家DSP），广告投放仍难精准的原因：Latency的苛刻要求，巨大的数据量，使得难以利用更多数据运行更好的算法，从另一个角度而言，精准广告应当避免去解决过于复杂的问题，这还需要跟逍遥子做更多探讨。
+    
+
+RD会投入2-3个人持续把DSP/DMP平台搭建下去。
+    在DSP平台开发方面，之前主要不明确的地方在于Target Engine。根据调研，我们发现Target Engine可以分为如下几类：
+        网页级——在不同网页上投放相关的广告。之前为B5MAN开发的网页关键词抽取属于该类Targeting。
+        用户segment——给用户分组，包含年龄，地域，或者其他属性
+        Behavioral Targeting——根据用户的历史浏览行为对用户modeling
+        Contextual Targeting——根据用户当前的浏览行为modeling
+    从描述上，上述4个级别的Target Engine代表了精准度由低到高排列，此外还有ReTargeting需单独说明。Contextual Targeting其技术来源于context aware recommender engine，但由于DSP对于Latency的苛刻要求，在实际应用中很难推进，因此若想精准，必须降低QPS，必须缩小audience的potential targeting范围，以减少对性能的需求。
+    我们将尽快确立以上DSP核心组件的算法和开发进度。
+  
+  今日没有时间深入决定target engine的进一步细节。目前大多数提供的所谓contextual targeting，其实是针对search engine的query进行targeting，因此单独针对search engine的contextual targeting被独立出来。开发一个DSP需要如下工作，正如以前多次提及，这不是让几个人几天就可以做出的系统：
+        High concurrent RTB connector——目前已具备雏形
+        Target engine——用于offline computation for audience selection，算法仍未确定，需要平台：Hadoop/Spark + Fast distributed NoSQL
+        Bidding 算法——已初步有选择
+        RTB过程——检索（根据cookie从Target Engine获取用户集合），Bidding，过滤
+        除以上之外，还包含相关的compaign管理功能，不算这些管理功能，即便我们确定所有如上算法细节，大体需要3-6个月的工作才大概有雏形。
+
+
